@@ -1,44 +1,45 @@
 const canvas = document.getElementById('gameWindow');
 const ctx = canvas.getContext('2d');
 
-let playerX = 300;
-let playerY = 200;
+let playerPosX = 0;
+let playerPosY = -100;
 
-let wIsPressed = false;
+let playerVelX = 0;
+let playerVelY = 0;
+
+let cameraPosX = -canvas.clientWidth / 2;
+let cameraPosY = -canvas.clientHeight / 2;
+
+const floorY = 10;
+
 let aIsPressed = false;
-let sIsPressed = false;
 let dIsPressed = false;
+let spaceIsPressed = false;
 
 document.addEventListener("keydown", (event) => {
     switch (event.key) {
-        case "w":
-            wIsPressed = true;
-            break;
         case "a":
             aIsPressed = true;
             break;
-        case "s":
-            sIsPressed = true;
-            break;
         case "d":
             dIsPressed = true;
+            break;
+        case " ":
+            spaceIsPressed = true;
             break;
     }
 })
 
 document.addEventListener("keyup", (event) => {
     switch (event.key) {
-        case "w":
-            wIsPressed = false;
-            break;
         case "a":
             aIsPressed = false;
             break;
-        case "s":
-            sIsPressed = false;
-            break;
         case "d":
             dIsPressed = false;
+            break;
+        case " ":
+            spaceIsPressed = false;
             break;
     }
 })
@@ -57,21 +58,68 @@ function gameLoop() {
 }
 
 function update(deltaTime) {
-    if (wIsPressed) playerY -= deltaTime;
-    if (aIsPressed) playerX -= deltaTime;
-    if (sIsPressed) playerY += deltaTime;
-    if (dIsPressed) playerX += deltaTime;
-    playerX = Math.max(0, playerX);
-    playerX = Math.min(playerX, canvas.clientWidth);
-    playerY = Math.max(0, playerY);
-    playerY = Math.min(playerY, canvas.clientHeight);
+
+    // gravity
+    playerVelY += deltaTime / 100;
+
+    // jump
+    if (playerPosY == 0 && spaceIsPressed) playerVelY = -8;
+
+    // movement
+    if (aIsPressed && !dIsPressed) playerVelX = deltaTime / 200 * -5 + (1 - deltaTime / 200) * playerVelX;
+    else if (dIsPressed && !aIsPressed) playerVelX = deltaTime / 200 * 5 + (1 - deltaTime / 200) * playerVelX;
+    else playerVelX = (1 - deltaTime / 200) * playerVelX;
+
+    // update position
+    playerPosX += playerVelX;
+    playerPosY += playerVelY;
+
+    // floor collision
+    if (playerPosY > 0) {
+        playerPosY = 0;
+        playerVelY = 0;
+    }
+
+    // adjust camera
+    let rate = deltaTime / 200;
+    if (cameraPosX < playerPosX - canvas.clientWidth + 200) {
+        cameraPosX += rate * (playerPosX - canvas.clientWidth + 200 - cameraPosX);
+    } else if (cameraPosX > playerPosX - 200) {
+        cameraPosX -= rate * (cameraPosX - (playerPosX - 200));
+    }
+    if (cameraPosY < playerPosY - canvas.clientHeight + 150) {
+        cameraPosY += rate * (playerPosY - canvas.clientHeight + 150 - cameraPosY);
+    } else if (cameraPosY > playerPosY - 150) {
+        cameraPosY -= rate * (cameraPosY - (playerPosY - 150));
+    }
+
 }
 
 function render() {
-    ctx.fillStyle = "white";
+
+    // draw background
+    ctx.fillStyle = "blue";
     ctx.fillRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+
+    // draw floor
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, floorY - cameraPosY, canvas.clientWidth, canvas.clientHeight);
+
+    // draw house
+    ctx.fillStyle = "yellow";
+    ctx.fillRect(-40 - cameraPosX, -70 - cameraPosY, 80, 80);
+    ctx.fillStyle = "orange";
+    ctx.beginPath();
+    ctx.moveTo(-60 - cameraPosX, -70 - cameraPosY);
+    ctx.lineTo(60 - cameraPosX, -70 - cameraPosY);
+    ctx.lineTo(-cameraPosX, -100 - cameraPosY);
+    ctx.lineTo(-60 - cameraPosX, -70 - cameraPosY);
+    ctx.fill();
+
+    // draw player
     ctx.fillStyle = "green";
     ctx.beginPath();
-    ctx.arc(playerX, playerY, 10, 0, 2 * Math.PI);
+    ctx.arc(playerPosX - cameraPosX, playerPosY - cameraPosY, 10, 0, 2 * Math.PI);
     ctx.fill();
+
 }
