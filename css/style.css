@@ -5,7 +5,7 @@
 }
 
 html {
-    background-image: url("/img/graph.png");
+    background-image: url("/images/graph.png");
     height: 100%;
 }
 
@@ -13,7 +13,6 @@ body {
     height: 100%;
     width: 50%;
     margin: auto;
-    background-image: "/images/graph.png";
     background-color: aliceblue;
     padding: 1rem;
     display: flex;
