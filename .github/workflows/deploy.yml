@@ -2,7 +2,7 @@ name: Deploy
 on: push
 jobs:
   deploy:
-    runs_on: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - name: test
         run: echo test
