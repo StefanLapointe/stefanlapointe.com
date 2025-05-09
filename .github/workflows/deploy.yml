@@ -11,5 +11,13 @@ jobs:
             **/*.html
             assets
           sparse-checkout-cone-mode: false
-      - name: test checkout
-        run: pwd && ls -la
+      - name: Remove .git
+        run: rm -rf .git
+      - name: Copy HTML and assets to server
+        uses: appleboy/scp-action@1.0.0
+        with:
+          host: ${{ secrets.HOST }}
+          user: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          source: .
+          target: ~/tmp
