@@ -13,11 +13,21 @@ jobs:
           sparse-checkout-cone-mode: false
       - name: Remove .git
         run: rm -rf .git
-      - name: Copy HTML and assets to server
+      - name: Copy files to temporary location on server
         uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY }}
           source: .
-          target: ~/tmp
+          target: ${{ secrets.NEW }}
+      - name: Replace old files with new files
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          script: |
+            sudo mv ${{ secrets.PROD }} ${{ secrets.OLD }}
+            sudo mv ${{ secrets.NEW }} ${{ secrets.PROD }}
+            rm -rf ${{ secrets.OLD }}
