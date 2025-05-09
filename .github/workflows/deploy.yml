@@ -12,4 +12,4 @@ jobs:
             assets
           sparse-checkout-cone-mode: false
       - name: test checkout
-        run: tree
+        run: pwd && ls -la
