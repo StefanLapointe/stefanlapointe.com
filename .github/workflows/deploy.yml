@@ -4,5 +4,12 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: test
-        run: echo test
+      - name: Checkout HTML and assets
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            **/*.html
+            assets
+          sparse-checkout-cone-mode: false
+      - name: test checkout
+        run: tree
