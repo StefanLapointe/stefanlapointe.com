@@ -28,6 +28,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY }}
           script: |
+            sudo chown root:root ${{ secrets.NEW }}
             sudo mv ${{ secrets.PROD }} ${{ secrets.OLD }}
             sudo mv ${{ secrets.NEW }} ${{ secrets.PROD }}
-            rm -rf ${{ secrets.OLD }}
+            sudo rm -rf ${{ secrets.OLD }}
