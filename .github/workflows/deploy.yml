@@ -5,22 +5,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout HTML and assets
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           sparse-checkout: |
             **/*.html
             assets
           sparse-checkout-cone-mode: false
-      - name: Remove .git
-        run: rm -rf .git
       - name: Copy files to temporary location on server
         uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY }}
-          source: .
-          target: ${{ secrets.NEW }}
+          source: ./*
+          target: ~/stefanlapointe.com-new
       - name: Replace old files with new files
         uses: appleboy/ssh-action@v1.2.2
         with:
@@ -28,7 +26,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY }}
           script: |
-            sudo chown root:root ${{ secrets.NEW }}
-            sudo mv ${{ secrets.PROD }} ${{ secrets.OLD }}
-            sudo mv ${{ secrets.NEW }} ${{ secrets.PROD }}
-            sudo rm -rf ${{ secrets.OLD }}
+            sudo chown root:root ~/stefanlapointe.com-new
+            sudo mv /var/www/stefanlapointe.com ~/stefanlapointe.com-old
+            sudo mv ~/stefanlapointe.com-new /var/www/stefanlapointe.com
+            sudo rm -rf ~/stefanlapointe.com-old
